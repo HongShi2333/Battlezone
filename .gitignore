@@ -173,6 +173,9 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+# 外部枪械模型缓存 (TACZ CC BY-NC-ND / SuperbWarfare 保留所有权利, 不入库)
+assets/gunpacks/cache/
+
 # Cursor  
 #  Cursor is an AI-powered code editor.`.cursorignore` specifies files/directories to 
 #  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data

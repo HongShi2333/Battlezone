@@ -1,7 +1,7 @@
 # PORTAL STRIKE 2042 — Python 战地风格 FPS
 
 纯 Python（pygame + PyOpenGL + numpy）实现的第一人称射击游戏原型，参考 Battlefield 2042 的操作手感与界面风格。
-**无需任何外部素材** —— 模型、纹理、音效全部程序化生成。
+音效和默认枪模是程序化的；第一人称枪械优先使用 TACZ 与 SuperbWarfare 的 Bedrock 模型（首次运行时拉取，失败则回退到程序化模型）。
 
 ![部署界面](docs/screenshots/02_loadout.png)
 
@@ -47,6 +47,19 @@ python tests/test_mechanics.py              # 无头测试 (动作系统 / 武�
 垂直握把 / 斜握把 / 激光 / 两脚架；标准 / 扩容 / 快拔 / 弹鼓 / 穿甲弹。配件真实修改属性，并改变 3D 模型。
 
 每次重生都会进入**部署界面**，自由选择一把主武器 + 一把副武器，配件配置会本地保存。
+
+### 枪械模型来源
+
+第一人称与部署预览优先使用两套 Minecraft 枪械模组的 Bedrock 几何 (`geo.json`)，而不是纯方块拼出来的外形：
+
+| 来源 | 仓库 | 本项目中的武器 |
+|---|---|---|
+| **TACZ** (Timeless and Classics Guns Zero) | [MCModderAnchor/TACZ](https://github.com/MCModderAnchor/TACZ) | P320、沙漠之鹰、M4A1、QBZ-95-1、SCAR-H、M82A1 (M107)、SPAS-12、Saiga-12K (AA-12) |
+| **SuperbWarfare** | [Mercurows/SuperbWarfare](https://github.com/Mercurows/SuperbWarfare) | G17、G18C、QBZ-191、AK-12、AWM、QBU-88 (Mk 14)、SVD、M870、QBS-09 (M1897) |
+
+套筒 / 枪机 / 泵动护木 / 弹匣按骨骼名拆开，换弹、拉栓、后坐仍然会动。换上瞄具、枪口、下挂时，在模型的 `scope_pos` / `muzzle_pos` 上叠游戏内配件。
+
+模型与贴图**不随本仓库分发**（TACZ 美术资源为 CC BY-NC-ND 4.0，SuperbWarfare 美术资源保留所有权利）。首次进入对局时从上游仓库拉取并缓存到 `assets/gunpacks/cache/`（已 gitignore）。离线可执行 `python tools/fetch_gun_models.py`，或把已克隆的仓库指给 `BATTLEZONE_TACZ` / `BATTLEZONE_SW`。拉取失败时自动回退到程序化模型。详见 `assets/gunpacks/README.md`。
 
 ---
 

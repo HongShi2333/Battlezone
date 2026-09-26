@@ -126,15 +126,30 @@ def draw_gun_preview(model, x, y, w, h, screen_w, screen_h, t, spin=True, yaw=No
     glDisable(GL_FOG)
     glDisable(GL_TEXTURE_2D)
     glDisable(GL_BLEND)
-    L = max(0.3, model.length)
-    glTranslatef(0, -0.01, -L * 1.75)
-    glRotatef(8, 1, 0, 0)
     ang = yaw if yaw is not None else (90 + math.sin(t * 0.5) * 25 if spin else 90)
-    glRotatef(ang, 0, 1, 0)
-    center_z = 0.33 - L / 2
-    glTranslatef(0, 0, -center_z)
+    center = getattr(model, "preview_center", None)
+    if center:
+        dist = max(0.7, getattr(model, "preview_span", model.length) * 2.1)
+        glTranslatef(0, -0.02, -dist)
+        glRotatef(12, 1, 0, 0)
+        glRotatef(ang, 0, 1, 0)
+        glTranslatef(-center[0], -center[1], -center[2])
+    else:
+        L = max(0.3, model.length)
+        glTranslatef(0, -0.01, -L * 1.75)
+        glRotatef(8, 1, 0, 0)
+        glRotatef(ang, 0, 1, 0)
+        center_z = 0.33 - L / 2
+        glTranslatef(0, 0, -center_z)
     for g in ("body", "mag", "bolt", "slide", "pump"):
         model.draw(g)
+    if model.lists.get("glass"):
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glDepthMask(GL_FALSE)
+        model.draw("glass")
+        glDepthMask(GL_TRUE)
+    glDisable(GL_TEXTURE_2D)
     glDisable(GL_LIGHTING)
     glEnable(GL_BLEND)
     glPopMatrix()

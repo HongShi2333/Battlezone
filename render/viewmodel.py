@@ -19,7 +19,7 @@ from core import settings as S
 from core.mathutil import smoothstep, clamp, lerp
 from player.player_state import STAND, CROUCH, PRONE, M_SPRINT, M_SLIDE, M_MANTLE, M_AIR
 from .gl_util import draw_box, draw_limb, perspective
-from .gun_models import draw_shell
+from .gun_models import draw_shell, unpack_box
 
 SLEEVE = (0.30, 0.32, 0.25)
 SLEEVE_DARK = (0.22, 0.24, 0.19)
@@ -347,8 +347,8 @@ class ViewModel:
         W = self.w
         kind = m.kind
         pistol = kind == "pistol"
-        hip = HIP.get(kind, HIP["rifle"])
-        ads_pos = (0.0, -m.sight_y, -(m.relief + m.eye_ref_z))
+        hip = getattr(m, "hip_pos", None) or HIP.get(kind, HIP["rifle"])
+        ads_pos = (-getattr(m, "sight_x", 0.0), -m.sight_y, -(m.relief + m.eye_ref_z))
         a_pos, a_rot, parts, lh, rh, ex = self._action(p, w, m)
         # 拉栓时临时降低开镜权重 (镜头短暂离开瞄具)
         ads = W["ads"] * (1 - ex["cyc"] * 0.85)
@@ -541,10 +541,29 @@ class ViewModel:
         glMatrixMode(GL_MODELVIEW)
 
     def _glass(self, m):
-        for prim in m.parts["glass"]:
-            _, c, s, col, rx = prim
-            glColor4f(col[0], col[1], col[2], 0.28)
-            draw_box(c[0], c[1], c[2], s[0], s[1], s[2])
+        # 贴图镜片走显示列表 (alpha 已写在顶点色里)。程序化镜片仍按图元画,
+        # 并且必须容忍 7 元组 (box, c, s, col, rx, ry, rz) —— 按 5 个值解包会在开镜时崩溃。
+        if getattr(m, "textured", False) and m.lists.get("glass"):
+            m.draw("glass")
+        for prim in m.parts.get("glass") or []:
+            if not prim or prim[0] != "box":
+                continue
+            c, s, col, rx, ry, rz = unpack_box(prim)
+            alpha = col[3] if len(col) > 3 else 0.28
+            glColor4f(col[0], col[1], col[2], alpha)
+            if rx or ry or rz:
+                glPushMatrix()
+                glTranslatef(*c)
+                if rx:
+                    glRotatef(rx, 1, 0, 0)
+                if ry:
+                    glRotatef(ry, 0, 1, 0)
+                if rz:
+                    glRotatef(rz, 0, 0, 1)
+                draw_box(0, 0, 0, s[0], s[1], s[2])
+                glPopMatrix()
+            else:
+                draw_box(c[0], c[1], c[2], s[0], s[1], s[2])
 
     def _glove(self, h, left):
         glColor3f(*GLOVE)
