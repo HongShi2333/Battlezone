@@ -1,0 +1,12 @@
+{
+ "primary": "scarh",
+ "secondary": "g18c",
+ "atts": {},
+ "sens": 1.0,
+ "fov": 78,
+ "friendly_bots": 5,
+ "enemy_bots": 3,
+ "difficulty": 1,
+ "name": "Player",
+ "server": "127.0.0.1:27960"
+}
