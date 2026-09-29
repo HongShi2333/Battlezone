@@ -251,6 +251,9 @@ class LoadoutScreen:
         draw_gun_preview(model, px, py, pw, ph, W, H, self.t)
         glEnable(GL_BLEND)
         ui.label(wdef.name, px + 14, py + 10, 22, WHITE, bold=True)
+        src = getattr(model, "pack_label", None)
+        if src:
+            ui.label(src, px + pw - 14, py + 14, 12, ACCENT, align="right")
         ui.label(CATEGORY_NAMES[wdef.category] + "  ·  " + wdef.caliber, px + 14, py + 40, 13, GREY)
         ui.label(wdef.real, px, py + ph + 10, 13, GREY)
         # 配件
